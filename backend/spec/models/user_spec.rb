@@ -39,12 +39,39 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "role" do
+    it do
+      is_expected.to define_enum_for(:role)
+        .with_values(admin: "admin", hr_manager: "hr_manager", viewer: "viewer")
+        .backed_by_column_of_type(:string)
+        .validating
+    end
+
+    it "defaults to the least-privileged role" do
+      expect(User.new.role).to eq("viewer")
+    end
+
+    it "lets admins and HR managers manage employees, but not viewers" do
+      expect(build(:user, :admin)).to be_manages_employees
+      expect(build(:user, :hr_manager)).to be_manages_employees
+      expect(build(:user, :viewer)).not_to be_manages_employees
+    end
+  end
+
   describe "database constraints" do
     it "enforces a unique email address" do
       create(:user, email_address: "hr@acme.test")
       duplicate = build(:user, email_address: "hr@acme.test")
 
       expect { duplicate.save(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+
+    it "enforces a known role" do
+      user = create(:user)
+      sql = User.sanitize_sql_array([ "UPDATE users SET role = ? WHERE id = ?", "superuser", user.id ])
+
+      expect { User.connection.execute(sql) }
+        .to raise_error(ActiveRecord::StatementInvalid, /users_role_valid/)
     end
   end
 end

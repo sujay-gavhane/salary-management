@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "Api::V1::Session", type: :request do
   let(:password) { "correct-horse-battery" }
-  let!(:user) { create(:user, name: "Hannah HR", email_address: "hr@acme.test", password: password) }
+  let!(:user) { create(:user, :hr_manager, name: "Hannah HR", email_address: "hr@acme.test", password: password) }
 
   def log_in(email: "hr@acme.test", pass: password)
     post "/api/v1/session", params: { email_address: email, password: pass }, as: :json
@@ -18,7 +18,7 @@ RSpec.describe "Api::V1::Session", type: :request do
 
       expect(response).to have_http_status(:created)
       expect(response.parsed_body["data"]).to eq(
-        "id" => user.id, "name" => "Hannah HR", "email_address" => "hr@acme.test"
+        "id" => user.id, "name" => "Hannah HR", "email_address" => "hr@acme.test", "role" => "hr_manager"
       )
     end
 
