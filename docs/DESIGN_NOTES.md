@@ -35,7 +35,7 @@ Indexes:
 ### `exchange_rates`
 | Column | Type | Constraints |
 |--------|------|-------------|
-| `currency` | char(3) | PK / unique, ISO 4217 |
+| `currency` | string(3) | PK, ISO 4217, CHECK `~ '^[A-Z]{3}$'`; normalized to uppercase |
 | `rate_to_usd` | decimal(18,8) | NOT NULL, CHECK `> 0`; 1 unit of local currency = `rate_to_usd` USD |
 | `as_of` | date | NOT NULL |
 

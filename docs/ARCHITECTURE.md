@@ -125,7 +125,7 @@ erDiagram
     }
 
     EXCHANGE_RATES {
-        char currency PK "ISO 4217"
+        string currency PK "ISO 4217, 3 uppercase letters"
         decimal rate_to_usd "18,8 and > 0"
         date as_of
     }
