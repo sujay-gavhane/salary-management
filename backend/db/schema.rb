@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_09_28_121445) do
+ActiveRecord::Schema[8.0].define(version: 2026_09_28_122151) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -48,5 +48,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_09_28_121445) do
     t.check_constraint "rate_to_usd > 0::numeric", name: "exchange_rates_rate_to_usd_positive"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "ip_address"
+    t.string "user_agent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "name", limit: 120, null: false
+    t.string "email_address", limit: 254, null: false
+    t.string "password_digest", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+  end
+
   add_foreign_key "employees", "exchange_rates", column: "currency", primary_key: "currency"
+  add_foreign_key "sessions", "users"
 end
