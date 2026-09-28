@@ -217,7 +217,7 @@ JavaScript + Vite, React Router, Redux Toolkit + RTK Query, Recharts, Vitest + R
   - Cache tags `Employee`, `Insights`, `User`, and `Session` handle invalidation. Creating, editing, or deleting an employee invalidates both `Employee` and `Insights`.
 - **`employeeFilters` slice**: `q`, filters, sort, and page, so the list keeps its state when you move between pages. It's synced to URL query params, so links can be shared.
 - **Current user**: comes from `GET /session`. A route guard and a `useCan(action)` hook read the role.
-- **Global 401 handling**: a `baseQuery` wrapper resets the API state and redirects to `/login`.
+- **Global 401 handling**: a `baseQuery` wrapper resets the whole API cache when a data endpoint returns 401, so no salary data stays in memory. The session query then refetches and fails, and the route guard redirects to `/login`. 401s from the session endpoints themselves (logged out, wrong password) don't trigger a reset, so there's no reset-and-refetch loop.
 
 ### UX rules
 - Search is debounced by 300 ms.

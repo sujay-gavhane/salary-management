@@ -323,7 +323,7 @@ flowchart LR
     url["URL query params"] <--> filters
     filters --> api
     api -- "fetchBaseQuery<br/>credentials include" --> backend["/api/v1"]
-    api -- "401" --> reauth["baseQuery wrapper<br/>reset api state, go to /login"]
+    api -- "401 from a data endpoint" --> reauth["baseQuery wrapper<br/>reset api cache; route guard<br/>then redirects to /login"]
     mutations["create / update / delete"] -- "invalidate Employee + Insights" --> api
 ```
 
