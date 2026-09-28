@@ -70,6 +70,8 @@ Permissions are enforced with Pundit policies. Every controller action calls `au
 
 Guardrails:
 - An admin can't delete their own account or change their own role, so the system can't be left with no admins.
+- Changing a user's password ends all of that user's other sessions. If an admin changes their own password, the session making the change is kept.
+- Non-admins get 403 on every `/users` request, before any lookup, so they can't probe which user ids exist.
 - The UI hides actions a role can't perform, but the API is the source of truth.
 
 ## 4. Authentication & Session Security

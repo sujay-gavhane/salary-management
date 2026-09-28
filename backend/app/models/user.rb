@@ -11,5 +11,14 @@ class User < ApplicationRecord
     format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
   validates :password, length: { minimum: 12 }, allow_nil: true
 
+  after_update :end_other_sessions, if: :saved_change_to_password_digest?
+
   def manages_employees? = admin? || hr_manager?
+
+  private
+
+  # Keeps the session making the change (an admin updating their own password).
+  def end_other_sessions
+    sessions.where.not(id: Current.session&.id).delete_all
+  end
 end

@@ -58,6 +58,30 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "password changes" do
+    let(:user) { create(:user) }
+    let!(:sessions) { create_list(:session, 2, user:) }
+
+    it "ends all of the user's sessions" do
+      user.update!(password: "a-brand-new-password")
+      expect(user.sessions.count).to eq(0)
+    end
+
+    it "keeps the current session" do
+      Current.session = sessions.first
+      user.update!(password: "a-brand-new-password")
+
+      expect(user.sessions.reload).to eq([ sessions.first ])
+    ensure
+      Current.reset
+    end
+
+    it "leaves sessions alone when other attributes change" do
+      user.update!(name: "Renamed")
+      expect(user.sessions.count).to eq(2)
+    end
+  end
+
   describe "database constraints" do
     it "enforces a unique email address" do
       create(:user, email_address: "hr@acme.test")
