@@ -1,0 +1,22 @@
+# Rails secrets
+/config/master.key
+/config/credentials/*.key
+
+# Environment files
+/.env*
+!/.env.example
+
+# Logs, temp files, and pids
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+/storage/*
+!/storage/.keep
+/public/assets
+/coverage/
+/.byebug_history
