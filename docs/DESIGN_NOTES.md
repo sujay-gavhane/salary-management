@@ -186,6 +186,7 @@ app/
   - Uses `GROUP BY` with `MIN`, `MAX`, `AVG`, and `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ...)`.
   - USD figures come from joining `exchange_rates` in SQL, never by converting in Ruby.
   - Distribution buckets use `width_bucket` over USD salary.
+  - `PERCENTILE_CONT` computes in double precision. The median is cast back to `numeric` and rounded to 2 decimals; at salaries below 10^10 that rounding is exact. All other stats stay `numeric` throughout.
 - **Serializers** are hand-written POROs. There are only a few resources, and it avoids adding a gem.
 - **Pagination** uses offset/limit with a capped `per_page`, returning the count in the metadata.
 

@@ -3,6 +3,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       resource :session, only: %i[show create destroy]
       resources :employees, only: %i[index show create update destroy]
+
+      get "insights/countries", to: "insights#countries"
+      get "insights/job_titles", to: "insights#job_titles"
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

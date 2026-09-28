@@ -8,13 +8,6 @@ RSpec.describe "GET /api/v1/employees", type: :request do
     create(:exchange_rate, currency: "INR", rate_to_usd: "0.012")
   end
 
-  def count_queries
-    count = 0
-    counter = ->(*, payload) { count += 1 unless payload[:name].in?(%w[SCHEMA TRANSACTION]) }
-    ActiveSupport::Notifications.subscribed(counter, "sql.active_record") { yield }
-    count
-  end
-
   it "returns 401 when not logged in" do
     get "/api/v1/employees"
     expect(response).to have_http_status(:unauthorized)
