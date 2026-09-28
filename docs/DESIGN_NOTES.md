@@ -16,20 +16,20 @@ Planning notes behind the [requirements](./REQUIREMENTS.md). Diagrams live in [A
 ### `employees`
 | Column | Type | Constraints |
 |--------|------|-------------|
-| `full_name` | string | NOT NULL, length 2–120 |
-| `email` | string | NOT NULL, unique; normalized to lowercase |
-| `job_title` | string | NOT NULL |
-| `department` | string | NOT NULL, one of the allowed departments |
-| `country` | char(2) | NOT NULL, ISO 3166-1 alpha-2, one of the supported countries |
-| `currency` | char(3) | NOT NULL, FK → `exchange_rates.currency`; **derived from `country`** |
-| `salary` | decimal(12,2) | NOT NULL, CHECK `salary > 0` (annual gross, local currency) |
-| `employment_type` | string | NOT NULL, CHECK in (`full_time`, `part_time`, `contract`) |
-| `hire_date` | date | NOT NULL; model validates it's not in the future |
+| `full_name` | string(120) | NOT NULL, length 2–120; whitespace collapsed |
+| `email` | string(254) | NOT NULL, unique, valid format; normalized to lowercase |
+| `job_title` | string(100) | NOT NULL |
+| `department` | string | NOT NULL, one of the allowed departments (model) |
+| `country` | string(2) | NOT NULL, CHECK `~ '^[A-Z]{2}$'`, one of the supported countries (model) |
+| `currency` | string(3) | NOT NULL, FK → `exchange_rates.currency`; **derived from `country`**, direct assignment ignored |
+| `salary` | decimal(12,2) | NOT NULL, CHECK `salary > 0`, model caps it below 10^10 (annual gross, local currency) |
+| `employment_type` | string | NOT NULL, CHECK in (`full_time`, `part_time`, `contract`); Rails enum |
+| `hire_date` | date | NOT NULL; model validates it's not in the future (a CHECK can't use `CURRENT_DATE`) |
 
 Indexes:
 - unique on `email`
 - `(country, job_title)`, used for country filters and job-title-in-country stats
-- `department`, `job_title`, `hire_date`, `salary`, used for filters and sorting
+- `department`, `job_title`, `hire_date`, used for filters and sorting. Sorting by `salary_usd` is computed through the rate join, so a `salary` index wouldn't help it.
 - GIN `gin_trgm_ops` on `full_name` and `email`, for `ILIKE '%q%'` search
 
 ### `exchange_rates`

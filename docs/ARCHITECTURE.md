@@ -136,8 +136,8 @@ erDiagram
         string email UK "normalized lowercase"
         string job_title
         string department
-        char country "ISO 3166-1 alpha-2"
-        char currency FK "derived from country"
+        string country "ISO 3166-1 alpha-2"
+        string currency FK "derived from country"
         decimal salary "12,2 and > 0, annual gross"
         string employment_type "full_time, part_time, contract"
         date hire_date
