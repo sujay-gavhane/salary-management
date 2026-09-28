@@ -28,7 +28,6 @@ gem "thruster", require: false
 gem "rack-cors"
 
 gem "pundit", "~> 2.5"
-gem "pagy", "~> 9.3"
 # Not dev-only: the hosted database is seeded in production
 gem "faker", "~> 3.5"
 

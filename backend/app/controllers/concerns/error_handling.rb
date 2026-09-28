@@ -6,6 +6,10 @@ module ErrorHandling
       render_error :bad_request, code: "bad_request", message: error.message
     end
 
+    rescue_from InvalidParameterError do |error|
+      render_error :bad_request, code: "invalid_parameter", field: error.field, message: error.detail
+    end
+
     rescue_from ActiveRecord::RecordNotFound do |error|
       render_error :not_found, code: "not_found", message: "#{error.model || 'Record'} not found"
     end
