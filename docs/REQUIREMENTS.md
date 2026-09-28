@@ -27,6 +27,7 @@ Salary data lives in per-country spreadsheets in mixed currencies: slow to searc
 6. **Currency normalization** — salaries stored in local currency; a static exchange-rate table converts to USD in SQL for cross-country figures. Every figure is labelled with its currency, and the UI shows the rates' "as of" date.
 7. **Seed data** — 10,000 realistic employees across 9 countries generated with **Faker** (fixed random seed, so deterministic), loaded in seconds, plus one demo user per role.
 8. **Developer experience** — `docker compose up` runs the full stack; CI runs tests, linting, and security scans.
+9. **Hosting** — deployed to **Render** (final phase): public URL, managed PostgreSQL, seeded with the 10k dataset.
 
 ## Technical Constraints
 - Backend: Ruby on Rails 8 (API mode), Ruby 3.3+, PostgreSQL.
@@ -59,3 +60,4 @@ Small, numbered, test-first steps. The AI agent **pauses after every step** with
 - Seed completes in under 10 seconds.
 - All test suites, RuboCop, Brakeman, and lint pass in CI.
 - `docker compose up` yields a working app from a clean checkout.
+- The hosted app on Render is reachable, seeded, and each demo role can log in.
