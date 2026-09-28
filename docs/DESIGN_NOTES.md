@@ -106,6 +106,8 @@ Guardrails:
   - `404`: not found
   - `422`: validation failed
   - `429`: rate limited
+  - `403` with code `invalid_origin`: a write whose `Origin` isn't `FRONTEND_ORIGIN`
+  - `415`: a POST, PATCH, or PUT that isn't `application/json`
 - Money is serialized as a string (e.g. `"85000.00"`) so it keeps its decimal precision, and always comes with its currency.
 
 ### Endpoints

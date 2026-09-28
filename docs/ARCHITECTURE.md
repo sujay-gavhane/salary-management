@@ -97,6 +97,8 @@ Every failure goes through one `ErrorHandling` concern, so all errors share a si
 | Unauthenticated | 401 |
 | Bad parameter | 400 |
 | Rate limited | 429 |
+| Write from a foreign or missing `Origin` | 403 (`invalid_origin`) |
+| Write body that isn't JSON | 415 |
 
 ## 4. Data Model (ER Diagram)
 

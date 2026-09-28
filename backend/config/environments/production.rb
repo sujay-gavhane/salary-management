@@ -24,6 +24,9 @@ Rails.application.configure do
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
 
+  # Fail fast at boot rather than fall back to the dev origin.
+  config.x.frontend_origin = ENV.fetch("FRONTEND_ORIGIN")
+
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 

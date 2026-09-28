@@ -44,6 +44,9 @@ module Backend
     # API mode drops cookies; the session cookie auth needs them back.
     config.middleware.use ActionDispatch::Cookies
 
+    # The only origin allowed by CORS and the CSRF Origin check. Production requires it to be set.
+    config.x.frontend_origin = ENV.fetch("FRONTEND_ORIGIN", "http://localhost:5173")
+
     config.generators do |g|
       g.test_framework :rspec, fixtures: false, view_specs: false, helper_specs: false, routing_specs: false
       g.factory_bot dir: "spec/factories"

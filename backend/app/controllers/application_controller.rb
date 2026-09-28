@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
   include ErrorHandling
+  include OriginCheck
   include Authentication
   include Pundit::Authorization
 

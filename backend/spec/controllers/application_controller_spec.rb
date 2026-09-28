@@ -21,6 +21,8 @@ RSpec.describe ApplicationController, type: :controller do
     cookies.signed[:session_id] = create(:session, user: user).id
   end
 
+  before { request.headers["Origin"] = Rails.configuration.x.frontend_origin }
+
   it "returns 401 in the shared error format when not logged in" do
     get :index
 
@@ -37,8 +39,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   it "returns 403 in the shared error format when the policy forbids it" do
     log_in_as(create(:user, :viewer))
-    post :create
-
+    post :create, as: :json
     expect(response).to have_http_status(:forbidden)
     expect(response.parsed_body).to eq(
       "errors" => [ { "code" => "forbidden", "message" => "You are not allowed to perform this action" } ]
