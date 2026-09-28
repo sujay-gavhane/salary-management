@@ -84,6 +84,65 @@ RSpec.describe SalaryInsights do
     end
   end
 
+  describe "#summary" do
+    before do
+      Employee.delete_all
+      create(:employee, country: "IN", department: "Engineering", salary: "1000000") # 12,000 USD
+      create(:employee, country: "IN", department: "Engineering", salary: "2000000") # 24,000 USD
+      create(:employee, country: "US", department: "HR", salary: "25000")            # exactly on a bucket edge
+      create(:employee, country: "US", department: "Engineering", salary: "50000")
+      create(:employee, country: "US", department: "Sales", salary: "70000")
+      create(:employee, country: "GB", department: "Sales", salary: "100000")        # 127,000 USD
+    end
+
+    it "returns the org headcount" do
+      expect(insights.summary[:headcount]).to eq(6)
+    end
+
+    it "compares countries by headcount and average USD salary" do
+      expect(insights.summary[:by_country]).to eq([
+        { country: "GB", currency: "GBP", headcount: 1, avg_usd: BigDecimal("127000") },
+        { country: "IN", currency: "INR", headcount: 2, avg_usd: BigDecimal("18000") },
+        { country: "US", currency: "USD", headcount: 3, avg_usd: BigDecimal("48333.33") }
+      ])
+    end
+
+    it "breaks down departments by headcount and average USD salary, converting each salary before averaging" do
+      expect(insights.summary[:by_department]).to eq([
+        { department: "Engineering", headcount: 3, avg_usd: BigDecimal("28666.67") },
+        { department: "HR", headcount: 1, avg_usd: BigDecimal("25000") },
+        { department: "Sales", headcount: 2, avg_usd: BigDecimal("98500") }
+      ])
+    end
+
+    it "buckets USD salaries into contiguous 25,000-wide bands, including empty ones" do
+      expect(insights.summary[:distribution]).to eq(
+        bucket_size_usd: BigDecimal("25000"),
+        buckets: [
+          { min_usd: BigDecimal("0"), max_usd: BigDecimal("25000"), headcount: 2 },
+          { min_usd: BigDecimal("25000"), max_usd: BigDecimal("50000"), headcount: 1 },
+          { min_usd: BigDecimal("50000"), max_usd: BigDecimal("75000"), headcount: 2 },
+          { min_usd: BigDecimal("75000"), max_usd: BigDecimal("100000"), headcount: 0 },
+          { min_usd: BigDecimal("100000"), max_usd: BigDecimal("125000"), headcount: 0 },
+          { min_usd: BigDecimal("125000"), max_usd: BigDecimal("150000"), headcount: 1 }
+        ]
+      )
+    end
+
+    it "returns zeros and empty lists for an org with no employees" do
+      Employee.delete_all
+
+      expect(insights.summary).to eq(
+        headcount: 0, by_country: [], by_department: [],
+        distribution: { bucket_size_usd: BigDecimal("25000"), buckets: [] }
+      )
+    end
+
+    it "runs one SQL query per section" do
+      expect(count_queries { insights.summary }).to eq(4)
+    end
+  end
+
   describe "#rates_as_of" do
     it "returns the most recent exchange-rate date" do
       expect(insights.rates_as_of).to eq(Date.new(2026, 9, 1))

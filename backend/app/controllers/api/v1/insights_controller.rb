@@ -3,6 +3,10 @@ module Api
     class InsightsController < ApplicationController
       before_action { authorize :insights, :show? }
 
+      def summary
+        render json: { data: InsightsSerializer.new(insights.summary).as_json, rates_as_of: }
+      end
+
       def countries
         render json: { data: InsightsSerializer.new(insights.by_country).as_json, rates_as_of: }
       end

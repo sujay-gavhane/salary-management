@@ -185,7 +185,7 @@ app/
 - **`SalaryInsights`**: one SQL query per insight.
   - Uses `GROUP BY` with `MIN`, `MAX`, `AVG`, and `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ...)`.
   - USD figures come from joining `exchange_rates` in SQL, never by converting in Ruby.
-  - Distribution buckets use `width_bucket` over USD salary.
+  - Distribution buckets are fixed 25,000 USD bands: `FLOOR(salary_usd / 25000)`, grouped in SQL. Empty bands up to the highest salary are filled with zero. Fixed round-number edges ("$50k–$75k") read better than `width_bucket`'s data-dependent edges.
   - `PERCENTILE_CONT` computes in double precision. The median is cast back to `numeric` and rounded to 2 decimals; at salaries below 10^10 that rounding is exact. All other stats stay `numeric` throughout.
 - **Serializers** are hand-written POROs. There are only a few resources, and it avoids adding a gem.
 - **Pagination** uses offset/limit with a capped `per_page`, returning the count in the metadata.

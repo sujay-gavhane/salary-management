@@ -266,7 +266,7 @@ ORDER BY e.country;
 
 Each country has exactly one currency, so each USD stat is just the local stat × `rate_to_usd`.
 
-Figures that span countries, like department averages and distribution buckets, work differently: they compute `salary * rate_to_usd` per row inside the aggregate. Buckets use `width_bucket`.
+Figures that span countries, like department averages and distribution buckets, work differently: they compute `salary * rate_to_usd` per row inside the aggregate. Buckets are fixed 25,000 USD bands, computed as `FLOOR(salary_usd / 25000)` and grouped in SQL. Empty bands in between are filled with zero, so the histogram has no gaps.
 
 ## 8. Frontend Component Tree
 

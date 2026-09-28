@@ -1,12 +1,46 @@
 require "rails_helper"
 
-RSpec.describe "Api::V1::Insights (country and job title)", type: :request do
+RSpec.describe "Api::V1::Insights", type: :request do
   let(:viewer) { create(:user, :viewer) }
 
   before do
     create(:exchange_rate, currency: "INR", rate_to_usd: "0.012", as_of: Date.new(2026, 9, 1))
     create(:employee, country: "IN", job_title: "Engineer", salary: "1000000")
     create(:employee, country: "IN", job_title: "Engineer", salary: "2000000")
+  end
+
+  describe "GET /api/v1/insights/summary" do
+    it "returns 401 when not logged in" do
+      get "/api/v1/insights/summary"
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    %i[admin hr_manager viewer].each do |role|
+      it "is available to #{role}" do
+        sign_in_as(create(:user, role))
+        get "/api/v1/insights/summary"
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    it "returns the org-wide summary with money as exact strings" do
+      sign_in_as(viewer)
+      get "/api/v1/insights/summary"
+
+      expect(response.parsed_body).to eq(
+        "data" => {
+          "headcount" => 2,
+          "by_country" => [ { "country" => "IN", "currency" => "INR", "headcount" => 2, "avg_usd" => "18000.00" } ],
+          "by_department" => [ { "department" => "Engineering", "headcount" => 2, "avg_usd" => "18000.00" } ],
+          "distribution" => {
+            "bucket_size_usd" => "25000.00",
+            "buckets" => [ { "min_usd" => "0.00", "max_usd" => "25000.00", "headcount" => 2 } ]
+          }
+        },
+        "rates_as_of" => "2026-09-01"
+      )
+    end
   end
 
   describe "GET /api/v1/insights/countries" do
