@@ -1,7 +1,10 @@
+import { BrowserRouter } from 'react-router'
+import AppRoutes from './app/AppRoutes.jsx'
+
 export default function App() {
   return (
-    <main className="app">
-      <h1>ACME Salary Management</h1>
-    </main>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
