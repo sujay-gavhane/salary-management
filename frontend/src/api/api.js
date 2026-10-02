@@ -51,7 +51,40 @@ export const api = createApi({
         }
       },
     }),
+    listEmployees: build.query({
+      query: ({ page = 1, per_page = 25, sort = 'full_name', direction = 'asc' } = {}) => ({
+        url: '/employees',
+        params: { page, per_page, sort, direction },
+      }),
+      providesTags: (result) => [
+        { type: 'Employee', id: 'LIST' },
+        ...(result?.data ?? []).map(({ id }) => ({ type: 'Employee', id })),
+      ],
+    }),
+    getEmployee: build.query({
+      query: (id) => `/employees/${id}`,
+      transformResponse: unwrapData,
+      providesTags: (result, error, id) => [{ type: 'Employee', id }],
+    }),
+    createEmployee: build.mutation({
+      query: (employee) => ({ url: '/employees', method: 'POST', body: { employee } }),
+      transformResponse: unwrapData,
+      invalidatesTags: [{ type: 'Employee', id: 'LIST' }],
+    }),
+    updateEmployee: build.mutation({
+      query: ({ id, employee }) => ({ url: `/employees/${id}`, method: 'PUT', body: { employee } }),
+      transformResponse: unwrapData,
+      invalidatesTags: (result, error, { id }) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
+    }),
   }),
 })
 
-export const { useGetSessionQuery, useLoginMutation, useLogoutMutation } = api
+export const {
+  useGetSessionQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useListEmployeesQuery,
+  useGetEmployeeQuery,
+  useCreateEmployeeMutation,
+  useUpdateEmployeeMutation,
+} = api

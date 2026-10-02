@@ -67,6 +67,64 @@ describe('AppRoutes', () => {
       expect(await screen.findByRole('heading', { level: 1, name: 'Users' })).toBeInTheDocument()
     })
 
+    it('lets HR managers create employees', async () => {
+      let payload
+      server.use(
+        loggedInAs(users.hr_manager),
+        http.post(`${API_URL}/employees`, async ({ request }) => {
+          payload = await request.json()
+          return HttpResponse.json(
+            {
+              data: {
+                id: 42,
+                full_name: 'Priya Nair',
+                email: 'priya.nair@acme.test',
+                job_title: 'Data Analyst',
+                department: 'Finance',
+                country: 'IN',
+                currency: 'INR',
+                salary: '1200000.00',
+                salary_usd: '14400.00',
+                employment_type: 'full_time',
+                hire_date: '2024-02-20',
+              },
+            },
+            { status: 201 },
+          )
+        }),
+      )
+
+      const { user } = renderApp('/employees/new')
+
+      expect(await screen.findByRole('heading', { level: 1, name: 'Add employee' })).toBeInTheDocument()
+
+      await user.type(screen.getByLabelText('Full name'), 'Priya Nair')
+      await user.type(screen.getByLabelText('Email'), 'priya.nair@acme.test')
+      await user.type(screen.getByLabelText('Job title'), 'Data Analyst')
+      await user.selectOptions(screen.getByLabelText('Department'), 'Finance')
+      await user.selectOptions(screen.getByLabelText('Country'), 'IN')
+      await user.clear(screen.getByLabelText('Salary'))
+      await user.type(screen.getByLabelText('Salary'), '1200000')
+      await user.selectOptions(screen.getByLabelText('Employment type'), 'full_time')
+      await user.clear(screen.getByLabelText('Hire date'))
+      await user.type(screen.getByLabelText('Hire date'), '2024-02-20')
+      await user.click(screen.getByRole('button', { name: 'Save employee' }))
+
+      expect(await screen.findByRole('heading', { level: 1, name: 'Employees' })).toBeInTheDocument()
+      expect(payload).toMatchObject({
+        employee: {
+          full_name: 'Priya Nair',
+          email: 'priya.nair@acme.test',
+          job_title: 'Data Analyst',
+          department: 'Finance',
+          country: 'IN',
+          salary: '1200000.00',
+          employment_type: 'full_time',
+          hire_date: '2024-02-20',
+        },
+      })
+    })
+
     it('shows a not found page for unknown routes', async () => {
       server.use(loggedInAs(users.viewer))
       renderApp('/nope')
