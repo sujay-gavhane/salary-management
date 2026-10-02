@@ -80,6 +80,28 @@ export const api = createApi({
       query: (id) => ({ url: `/employees/${id}`, method: 'DELETE' }),
       invalidatesTags: (result, error, id) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
     }),
+    listUsers: build.query({
+      query: () => '/users',
+      transformResponse: (response) => response.data,
+      providesTags: (result) => [
+        { type: 'User', id: 'LIST' },
+        ...(result ?? []).map(({ id }) => ({ type: 'User', id })),
+      ],
+    }),
+    createUser: build.mutation({
+      query: (user) => ({ url: '/users', method: 'POST', body: { user } }),
+      transformResponse: unwrapData,
+      invalidatesTags: [{ type: 'User', id: 'LIST' }],
+    }),
+    updateUser: build.mutation({
+      query: ({ id, user }) => ({ url: `/users/${id}`, method: 'PATCH', body: { user } }),
+      transformResponse: unwrapData,
+      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }, { type: 'User', id: 'LIST' }],
+    }),
+    deleteUser: build.mutation({
+      query: (id) => ({ url: `/users/${id}`, method: 'DELETE' }),
+      invalidatesTags: (result, error, id) => [{ type: 'User', id }, { type: 'User', id: 'LIST' }],
+    }),
     getSummary: build.query({
       query: () => '/insights/summary',
       transformResponse: (response) => response.data,
@@ -107,6 +129,10 @@ export const {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
   useDeleteEmployeeMutation,
+  useListUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
   useGetSummaryQuery,
   useGetCountryInsightsQuery,
   useGetJobTitleInsightsQuery,

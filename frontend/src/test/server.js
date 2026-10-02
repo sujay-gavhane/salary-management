@@ -33,4 +33,9 @@ export const server = setupServer(
 			rates_as_of: '2026-09-01',
 		}),
 	),
+	http.get(`${API_URL}/users`, () =>
+		HttpResponse.json({
+			data: [],
+		}),
+	),
 )

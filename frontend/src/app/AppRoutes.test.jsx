@@ -60,11 +60,21 @@ describe('AppRoutes', () => {
       expect(await screen.findByRole('heading', { name: "You don't have access to this page" })).toBeInTheDocument()
     })
 
-    it('lets admins open the users page', async () => {
-      server.use(loggedInAs(users.admin))
+    it('lets admins open the users page and see the user list', async () => {
+      server.use(
+        loggedInAs(users.admin),
+        http.get(`${API_URL}/users`, () => HttpResponse.json({
+          data: [
+            { id: 1, name: 'Ada Admin', email_address: 'admin@acme.test', role: 'admin' },
+            { id: 2, name: 'Hannah HR', email_address: 'hr@acme.test', role: 'hr_manager' },
+            { id: 3, name: 'Victor Viewer', email_address: 'viewer@acme.test', role: 'viewer' },
+          ],
+        })),
+      )
       renderApp('/users')
 
       expect(await screen.findByRole('heading', { level: 1, name: 'Users' })).toBeInTheDocument()
+      expect(await screen.findByRole('button', { name: 'Add user' })).toBeInTheDocument()
     })
 
     it('lets HR managers create employees', async () => {
