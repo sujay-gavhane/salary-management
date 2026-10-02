@@ -76,6 +76,25 @@ export const api = createApi({
       transformResponse: unwrapData,
       invalidatesTags: (result, error, { id }) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
     }),
+    deleteEmployee: build.mutation({
+      query: (id) => ({ url: `/employees/${id}`, method: 'DELETE' }),
+      invalidatesTags: (result, error, id) => [{ type: 'Employee', id }, { type: 'Employee', id: 'LIST' }],
+    }),
+    getSummary: build.query({
+      query: () => '/insights/summary',
+      transformResponse: (response) => response.data,
+      providesTags: ['Insights'],
+    }),
+    getCountryInsights: build.query({
+      query: () => '/insights/countries',
+      transformResponse: (response) => response.data,
+      providesTags: ['Insights'],
+    }),
+    getJobTitleInsights: build.query({
+      query: (country) => ({ url: '/insights/job_titles', params: { country } }),
+      transformResponse: (response) => response.data,
+      providesTags: ['Insights'],
+    }),
   }),
 })
 
@@ -87,4 +106,8 @@ export const {
   useGetEmployeeQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
+  useDeleteEmployeeMutation,
+  useGetSummaryQuery,
+  useGetCountryInsightsQuery,
+  useGetJobTitleInsightsQuery,
 } = api

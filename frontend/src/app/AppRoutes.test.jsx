@@ -125,6 +125,126 @@ describe('AppRoutes', () => {
       })
     })
 
+    it('shows the employee detail page', async () => {
+      server.use(
+        loggedInAs(users.viewer),
+        http.get(`${API_URL}/employees/42`, () =>
+          HttpResponse.json({
+            data: {
+              id: 42,
+              full_name: 'Asha Rao',
+              email: 'asha.rao@acme.test',
+              job_title: 'Software Engineer',
+              department: 'Engineering',
+              country: 'IN',
+              currency: 'INR',
+              salary: '2400000.00',
+              salary_usd: '28800.00',
+              employment_type: 'full_time',
+              hire_date: '2021-04-12',
+            },
+          }),
+        ),
+      )
+
+      renderApp('/employees/42')
+
+      expect(await screen.findByRole('heading', { level: 1, name: 'Asha Rao' })).toBeInTheDocument()
+      expect(screen.getByText('Software Engineer')).toBeInTheDocument()
+      expect(screen.getByText('Engineering')).toBeInTheDocument()
+    })
+
+    it('deletes an employee from the detail page', async () => {
+      let deleted = false
+      server.use(
+        loggedInAs(users.hr_manager),
+        http.get(`${API_URL}/employees/42`, () =>
+          HttpResponse.json({
+            data: {
+              id: 42,
+              full_name: 'Asha Rao',
+              email: 'asha.rao@acme.test',
+              job_title: 'Software Engineer',
+              department: 'Engineering',
+              country: 'IN',
+              currency: 'INR',
+              salary: '2400000.00',
+              salary_usd: '28800.00',
+              employment_type: 'full_time',
+              hire_date: '2021-04-12',
+            },
+          }),
+        ),
+        http.delete(`${API_URL}/employees/42`, () => {
+          deleted = true
+          return new HttpResponse(null, { status: 204 })
+        }),
+      )
+
+      const { user } = renderApp('/employees/42')
+
+      await screen.findByRole('heading', { level: 1, name: 'Asha Rao' })
+      await user.click(screen.getByRole('button', { name: 'Delete employee' }))
+
+      expect(await screen.findByRole('heading', { level: 1, name: 'Employees' })).toBeInTheDocument()
+      expect(deleted).toBe(true)
+    })
+
+    it('shows the insights dashboard', async () => {
+      server.use(
+        loggedInAs(users.viewer),
+        http.get(`${API_URL}/insights/summary`, () =>
+          HttpResponse.json({
+            data: {
+              headcount: 2,
+              by_country: [{ country: 'IN', currency: 'INR', headcount: 2, avg_usd: '18000.00' }],
+              by_department: [{ department: 'Engineering', headcount: 2, avg_usd: '18000.00' }],
+              distribution: {
+                bucket_size_usd: '25000.00',
+                buckets: [{ min_usd: '0.00', max_usd: '25000.00', headcount: 2 }],
+              },
+            },
+            rates_as_of: '2026-09-01',
+          }),
+        ),
+        http.get(`${API_URL}/insights/countries`, () =>
+          HttpResponse.json({
+            data: [{
+              country: 'IN',
+              currency: 'INR',
+              headcount: 2,
+              local: { min: '1000000.00', max: '2000000.00', avg: '1500000.00', median: '1500000.00' },
+              usd: { min: '12000.00', max: '24000.00', avg: '18000.00', median: '18000.00' },
+            }],
+            rates_as_of: '2026-09-01',
+          }),
+        ),
+        http.get(/.*\/insights\/job_titles/, ({ request }) => {
+          const country = new URL(request.url).searchParams.get('country')
+          return HttpResponse.json({
+            data: [{
+              job_title: 'Software Engineer',
+              headcount: 2,
+              local: { avg: '1500000.00' },
+              usd: { avg: '18000.00' },
+            }],
+            country,
+            currency: 'INR',
+            rates_as_of: '2026-09-01',
+          })
+        }),
+      )
+
+      const { user } = renderApp('/insights')
+
+      expect(await screen.findByRole('heading', { level: 1, name: 'Insights' })).toBeInTheDocument()
+      expect(screen.getByText('Company headcount')).toBeInTheDocument()
+      expect(screen.getAllByText('2').length).toBeGreaterThan(0)
+
+      await user.selectOptions(screen.getByLabelText('Country'), 'IN')
+      expect(await screen.findByRole('heading', { level: 2, name: 'Software Engineer' })).toBeInTheDocument()
+    })
+
     it('shows a not found page for unknown routes', async () => {
       server.use(loggedInAs(users.viewer))
       renderApp('/nope')

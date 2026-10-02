@@ -227,7 +227,7 @@ export default function EmployeeFormPage() {
   if (isEditing && loadingEmployee) return <LoadingState label="Loading employee…" />
   if (isEditing && employeeError) return <ErrorState error={employeeError} onRetry={refetchEmployee} />
 
-  const initialValues = isEditing ? mapEmployeeToForm(employee?.data) : EMPTY_FORM
+  const initialValues = isEditing ? mapEmployeeToForm(employee) : EMPTY_FORM
   const error = createError ?? updateError
   const isSubmitting = creating || updating
 

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import LoginPage from '../auth/LoginPage.jsx'
 import RequireAuth from '../auth/RequireAuth.jsx'
 import RequireRole from '../auth/RequireRole.jsx'
+import EmployeeDetailPage from '../features/employees/EmployeeDetailPage.jsx'
 import EmployeeFormPage from '../features/employees/EmployeeFormPage.jsx'
 import EmployeesPage from '../features/employees/EmployeesPage.jsx'
 import InsightsPage from '../features/insights/InsightsPage.jsx'
@@ -17,6 +18,7 @@ export default function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route index element={<Navigate to="/employees" replace />} />
           <Route path="employees" element={<EmployeesPage />} />
+          <Route path="employees/:id" element={<EmployeeDetailPage />} />
           <Route element={<RequireRole action="manageEmployees" />}>
             <Route path="employees/new" element={<EmployeeFormPage />} />
             <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
