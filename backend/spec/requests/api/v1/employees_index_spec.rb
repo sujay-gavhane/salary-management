@@ -24,14 +24,13 @@ RSpec.describe "GET /api/v1/employees", type: :request do
     end
   end
 
-  it "returns serialized rows with USD salary and pagination meta" do
+  it "omits salary details for viewer responses while keeping pagination meta" do
     create(:employee, full_name: "Asha Rao", country: "IN", salary: "2400000")
     sign_in_as(viewer)
     get "/api/v1/employees"
 
-    expect(response.parsed_body["data"].first).to include(
-      "full_name" => "Asha Rao", "currency" => "INR", "salary" => "2400000.00", "salary_usd" => "28800.00"
-    )
+    expect(response.parsed_body["data"].first).to include("full_name" => "Asha Rao", "currency" => "INR")
+    expect(response.parsed_body["data"].first).not_to include("salary", "salary_usd")
     expect(response.parsed_body["meta"]).to eq("page" => 1, "per_page" => 25, "total_count" => 1, "total_pages" => 1)
   end
 

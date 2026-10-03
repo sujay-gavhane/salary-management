@@ -15,7 +15,7 @@ RSpec.describe "Api::V1::Insights", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    %i[admin hr_manager viewer].each do |role|
+    %i[admin hr_manager].each do |role|
       it "is available to #{role}" do
         sign_in_as(create(:user, role))
         get "/api/v1/insights/summary"
@@ -24,8 +24,15 @@ RSpec.describe "Api::V1::Insights", type: :request do
       end
     end
 
-    it "returns the org-wide summary with money as exact strings" do
+    it "forbids viewers" do
       sign_in_as(viewer)
+      get "/api/v1/insights/summary"
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "returns the org-wide summary with money as exact strings" do
+      sign_in_as(create(:user, :hr_manager))
       get "/api/v1/insights/summary"
 
       expect(response.parsed_body).to eq(
@@ -49,7 +56,7 @@ RSpec.describe "Api::V1::Insights", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    %i[admin hr_manager viewer].each do |role|
+    %i[admin hr_manager].each do |role|
       it "is available to #{role}" do
         sign_in_as(create(:user, role))
         get "/api/v1/insights/countries"
@@ -58,8 +65,15 @@ RSpec.describe "Api::V1::Insights", type: :request do
       end
     end
 
-    it "returns per-country stats as exact money strings with the rates date" do
+    it "forbids viewers" do
       sign_in_as(viewer)
+      get "/api/v1/insights/countries"
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "returns per-country stats as exact money strings with the rates date" do
+      sign_in_as(create(:user, :hr_manager))
       get "/api/v1/insights/countries"
 
       expect(response.parsed_body).to eq(
@@ -75,7 +89,7 @@ RSpec.describe "Api::V1::Insights", type: :request do
 
   describe "GET /api/v1/insights/job_titles" do
     it "returns job-title averages for the country with its currency" do
-      sign_in_as(viewer)
+      sign_in_as(create(:user, :hr_manager))
       get "/api/v1/insights/job_titles", params: { country: "IN" }
 
       expect(response).to have_http_status(:ok)
@@ -85,8 +99,15 @@ RSpec.describe "Api::V1::Insights", type: :request do
       )
     end
 
-    it "returns 400 for a missing or unsupported country" do
+    it "forbids viewers from job-title insights" do
       sign_in_as(viewer)
+      get "/api/v1/insights/job_titles", params: { country: "IN" }
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "returns 400 for a missing or unsupported country" do
+      sign_in_as(create(:user, :hr_manager))
 
       [ {}, { country: "ZZ" } ].each do |params|
         get "/api/v1/insights/job_titles", params: params

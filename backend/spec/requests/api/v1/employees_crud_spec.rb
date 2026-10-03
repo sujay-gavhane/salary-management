@@ -23,7 +23,7 @@ RSpec.describe "Api::V1::Employees CRUD", type: :request do
   end
 
   describe "GET /api/v1/employees/:id" do
-    %i[admin hr_manager viewer].each do |role|
+    %i[admin hr_manager].each do |role|
       it "returns the employee with local and USD salary for #{role}" do
         sign_in_as(public_send(role))
         get "/api/v1/employees/#{employee.id}"
@@ -37,6 +37,20 @@ RSpec.describe "Api::V1::Employees CRUD", type: :request do
           "employment_type" => "full_time", "hire_date" => "2021-04-12"
         )
       end
+    end
+
+    it "omits salary details for a viewer" do
+      sign_in_as(viewer)
+      get "/api/v1/employees/#{employee.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body["data"]).to include(
+        "id" => employee.id, "full_name" => "Asha Rao", "email" => "asha.rao@acme.test",
+        "job_title" => "Software Engineer", "department" => "Engineering",
+        "country" => "IN", "currency" => "INR", "employment_type" => "full_time",
+        "hire_date" => "2021-04-12"
+      )
+      expect(response.parsed_body["data"]).not_to include("salary", "salary_usd")
     end
 
     it "returns 404 for an unknown id" do

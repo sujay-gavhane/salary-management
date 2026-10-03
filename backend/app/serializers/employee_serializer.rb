@@ -4,7 +4,7 @@ class EmployeeSerializer
   end
 
   def as_json(*)
-    {
+    base = {
       id: @employee.id,
       full_name: @employee.full_name,
       email: @employee.email,
@@ -12,11 +12,18 @@ class EmployeeSerializer
       department: @employee.department,
       country: @employee.country,
       currency: @employee.currency,
-      salary: MoneyFormat.call(@employee.salary),
-      salary_usd: MoneyFormat.call(salary_usd),
       employment_type: @employee.employment_type,
       hire_date: @employee.hire_date.iso8601
     }
+
+    if Current.user&.viewer?
+      base
+    else
+      base.merge(
+        salary: MoneyFormat.call(@employee.salary),
+        salary_usd: MoneyFormat.call(salary_usd)
+      )
+    end
   end
 
   private
