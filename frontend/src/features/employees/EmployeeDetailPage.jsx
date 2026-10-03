@@ -26,6 +26,7 @@ export default function EmployeeDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const canManageEmployees = useCan('manageEmployees')
+  const canViewCompensation = useCan('viewCompensation')
   const { data, error, isLoading, refetch } = useGetEmployeeQuery(id)
   const [deleteEmployee, { isLoading: deleting }] = useDeleteEmployeeMutation()
 
@@ -91,16 +92,20 @@ export default function EmployeeDetailPage() {
             <dt>Hire date</dt>
             <dd>{formatDate(employee.hire_date)}</dd>
           </div>
-          <div>
-            <dt>Salary (USD)</dt>
-            <dd>{formatCurrency(employee.salary_usd, 'USD')}</dd>
-          </div>
-          <div>
-            <dt>Local salary</dt>
-            <dd>
-              {formatCurrency(employee.salary, employee.currency)} {employee.currency}
-            </dd>
-          </div>
+          {canViewCompensation && (
+            <>
+              <div>
+                <dt>Salary (USD)</dt>
+                <dd>{formatCurrency(employee.salary_usd, 'USD')}</dd>
+              </div>
+              <div>
+                <dt>Local salary</dt>
+                <dd>
+                  {formatCurrency(employee.salary, employee.currency)} {employee.currency}
+                </dd>
+              </div>
+            </>
+          )}
         </dl>
       </div>
     </section>

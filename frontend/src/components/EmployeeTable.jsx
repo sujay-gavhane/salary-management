@@ -27,13 +27,15 @@ function formatDate(value) {
   }).format(new Date(`${value}T00:00:00Z`))
 }
 
-export default function EmployeeTable({ employees, sort, direction, onSort }) {
+export default function EmployeeTable({ employees, sort, direction, onSort, canViewCompensation = false }) {
+  const columns = canViewCompensation ? COLUMNS : COLUMNS.filter(({ key }) => key !== 'salary_usd')
+
   return (
     <div className="table-scroll">
       <table className="data-table" aria-label="Employees">
         <thead>
           <tr>
-            {COLUMNS.map(({ key, label, numeric }) => (
+            {columns.map(({ key, label, numeric }) => (
               <th
                 key={key}
                 scope="col"
@@ -51,7 +53,7 @@ export default function EmployeeTable({ employees, sort, direction, onSort }) {
                 </button>
               </th>
             ))}
-            <th scope="col">Local salary</th>
+            {canViewCompensation && <th scope="col">Local salary</th>}
           </tr>
         </thead>
         <tbody>
@@ -66,12 +68,14 @@ export default function EmployeeTable({ employees, sort, direction, onSort }) {
               <td>{employee.job_title}</td>
               <td>{employee.department}</td>
               <td>{employee.country}</td>
-              <td className="data-table__numeric">{formatMoney(employee.salary_usd, 'USD')}</td>
+              {canViewCompensation && <td className="data-table__numeric">{formatMoney(employee.salary_usd, 'USD')}</td>}
               <td>{formatDate(employee.hire_date)}</td>
-              <td>
-                <span>{formatMoney(employee.salary, employee.currency)}</span>
-                <span className="currency-code"> {employee.currency}</span>
-              </td>
+              {canViewCompensation && (
+                <td>
+                  <span>{formatMoney(employee.salary, employee.currency)}</span>
+                  <span className="currency-code"> {employee.currency}</span>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -98,4 +102,5 @@ EmployeeTable.propTypes = {
   sort: PropTypes.string.isRequired,
   direction: PropTypes.oneOf(['asc', 'desc']).isRequired,
   onSort: PropTypes.func.isRequired,
+  canViewCompensation: PropTypes.bool,
 }

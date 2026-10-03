@@ -3,6 +3,8 @@ import { useGetSessionQuery } from '../api/api.js'
 // Mirrors the backend Pundit policies; the API still enforces them.
 const PERMISSIONS = {
   manageEmployees: ['admin', 'hr_manager'],
+  viewCompensation: ['admin', 'hr_manager'],
+  viewInsights: ['admin', 'hr_manager'],
   manageUsers: ['admin'],
 }
 

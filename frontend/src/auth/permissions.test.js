@@ -9,6 +9,12 @@ describe('can', () => {
     expect(can(users.viewer, 'manageEmployees')).toBe(false)
   })
 
+  it('lets only admins and HR managers view insights, but not viewers', () => {
+    expect(can(users.admin, 'viewInsights')).toBe(true)
+    expect(can(users.hr_manager, 'viewInsights')).toBe(true)
+    expect(can(users.viewer, 'viewInsights')).toBe(false)
+  })
+
   it('lets only admins manage users', () => {
     expect(can(users.admin, 'manageUsers')).toBe(true)
     expect(can(users.hr_manager, 'manageUsers')).toBe(false)

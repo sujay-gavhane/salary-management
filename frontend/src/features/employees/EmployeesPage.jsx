@@ -23,6 +23,7 @@ export default function EmployeesPage() {
   const [sort, setSort] = useState(DEFAULT_SORT)
   const [direction, setDirection] = useState(DEFAULT_DIRECTION)
   const canManageEmployees = useCan('manageEmployees')
+  const canViewCompensation = useCan('viewCompensation')
   const { data, error, isLoading, isFetching, refetch } = useListEmployeesQuery({
     page,
     per_page: PER_PAGE,
@@ -72,7 +73,13 @@ export default function EmployeesPage() {
         </div>
       ) : (
         <>
-          <EmployeeTable employees={employees} sort={sort} direction={direction} onSort={handleSort} />
+          <EmployeeTable
+            employees={employees}
+            sort={sort}
+            direction={direction}
+            onSort={handleSort}
+            canViewCompensation={canViewCompensation}
+          />
           <div className="table-footer">
             <p aria-live="polite">
               Showing {rangeStart(page, totalCount)}–{rangeEnd(page, totalCount)} of {totalCount} employees

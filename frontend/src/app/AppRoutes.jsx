@@ -23,7 +23,9 @@ export default function AppRoutes() {
             <Route path="employees/new" element={<EmployeeFormPage />} />
             <Route path="employees/:id/edit" element={<EmployeeFormPage />} />
           </Route>
-          <Route path="insights" element={<InsightsPage />} />
+          <Route element={<RequireRole action="viewInsights" />}>
+            <Route path="insights" element={<InsightsPage />} />
+          </Route>
           <Route element={<RequireRole action="manageUsers" />}>
             <Route path="users" element={<UsersPage />} />
           </Route>

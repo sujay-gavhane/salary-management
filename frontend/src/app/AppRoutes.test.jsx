@@ -53,6 +53,13 @@ describe('AppRoutes', () => {
       expect(hrNav).not.toHaveTextContent('Users')
     })
 
+    it('blocks viewers from the insights page', async () => {
+      server.use(loggedInAs(users.viewer))
+      renderApp('/insights')
+
+      expect(await screen.findByRole('heading', { name: "You don't have access to this page" })).toBeInTheDocument()
+    })
+
     it('blocks non-admins from the users page', async () => {
       server.use(loggedInAs(users.viewer))
       renderApp('/users')
@@ -202,7 +209,7 @@ describe('AppRoutes', () => {
 
     it('shows the insights dashboard', async () => {
       server.use(
-        loggedInAs(users.viewer),
+        loggedInAs(users.hr_manager),
         http.get(`${API_URL}/insights/summary`, () =>
           HttpResponse.json({
             data: {

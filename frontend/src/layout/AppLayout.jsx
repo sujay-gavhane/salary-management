@@ -4,6 +4,7 @@ import { roleLabel, useCan, useCurrentUser } from '../auth/permissions.js'
 
 export default function AppLayout() {
   const user = useCurrentUser()
+  const canViewInsights = useCan('viewInsights')
   const canManageUsers = useCan('manageUsers')
   const [logout, { isLoading }] = useLogoutMutation()
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function AppLayout() {
         <span className="app-header__name">ACME Salary Management</span>
         <nav aria-label="Main" className="app-header__nav">
           <NavLink to="/employees">Employees</NavLink>
-          <NavLink to="/insights">Insights</NavLink>
+          {canViewInsights && <NavLink to="/insights">Insights</NavLink>}
           {canManageUsers && <NavLink to="/users">Users</NavLink>}
         </nav>
         <div className="app-header__user">
