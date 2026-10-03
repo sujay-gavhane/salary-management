@@ -1,24 +1,22 @@
-# README
+# Backend setup
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+The Rails 8 API requires Ruby 3.4.5, Bundler, and PostgreSQL. From this directory:
 
-Things you may want to cover:
+```sh
+bundle install
+bin/rails db:prepare
+bin/rails db:seed
+bin/rails server -p 3000
+```
 
-* Ruby version
+The health endpoint is `http://localhost:3000/up`. The API is served under `/api/v1`.
 
-* System dependencies
+Run the backend checks with:
 
-* Configuration
+```sh
+bundle exec rspec
+bundle exec rubocop
+bundle exec brakeman
+```
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+For the complete local setup—including PostgreSQL, frontend startup, seed behavior, and configuration—see the [repository setup guide](../README.md).
